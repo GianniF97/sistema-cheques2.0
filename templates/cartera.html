@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"> Cartera de Cheques</h2>
+    <a href="{{ url_for('registrar') }}" class="btn btn-primary fw-semibold">+ Registrar Cheque</a>
+</div>
+
+<!-- Tarjetas de Métricas -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 p-3">
+            <div class="text-muted small">Total en Cartera</div>
+            <h3 class="fw-bold mb-0 text-primary">{{ total_monto | ars }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 p-3">
+            <div class="text-muted small">Pendiente de Cobro</div>
+            <h3 class="fw-bold mb-0 text-warning">{{ total_pendiente | ars }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 p-3">
+            <div class="text-muted small">Cheques Pendientes</div>
+            <h3 class="fw-bold mb-0 text-dark">{{ cant_pendientes }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla y Operaciones -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 fw-bold">Detalle de Cheques</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>N°</th>
+                            <th>Tipo</th>
+                            <th>Emisor</th>
+                            <th>Banco</th>
+                            <th>Monto</th>
+                            <th>F. Pago</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in cheques %}
+                        <tr>
+                            <td class="fw-bold">{{ c.numero }}</td>
+                            <td><span class="badge bg-secondary">{{ c.tipo }}</span></td>
+                            <td>{{ c.emisor }}</td>
+                            <td>{{ c.banco }}</td>
+                            <td class="fw-bold">{{ c.monto | ars }}</td>
+                            <td>{{ c.fecha_pago }}</td>
+                            <td>
+                                {% if c.estado == 'pendiente' %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% elif c.estado == 'depositado' %}
+                                    <span class="badge bg-success">Depositado</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">Entregado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No hay cheques registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Lateral: Cambiar Estado -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 p-3">
+            <h5 class="fw-bold mb-3"> Cambiar Estado</h5>
+            <form action="{{ url_for('cambiar_estado') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label small">N° Cheque a Procesar</label>
+                    <input type="text" name="numero_cheque" class="form-control" required placeholder="Ej: 12345678">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Acción</label>
+                    <select name="accion" class="form-select">
+                        <option value="Depositar en Banco">Depositar en Banco</option>
+                        <option value="Entregar a Tercero">Entregar a Tercero</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Destinatario (Si entrega a tercero)</label>
+                    <input type="text" name="destinatario" class="form-control" placeholder="Nombre de persona/empresa">
+                </div>
+                <button type="submit" class="btn btn-dark w-100 fw-semibold">Confirmar Operación</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
