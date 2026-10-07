@@ -14,9 +14,12 @@ app = Flask(__name__, template_folder="../templates", static_folder="../static")
 app.secret_key = os.environ.get("SECRET_KEY", "clave-secreta-temporal-2026")
 
 def get_db():
-    db_url = "postgresql://postgres.ezwblubdgtmcucpyxulj:eW56tUNvKbAdEdi2@aws-1-sa-east-1.pooler.supabase.com:6543/postgres"
+    db_url = os.environ.get("DATABASE_URL", "")
+    if not db_url:
+        raise ValueError("DATABASE_URL no está configurada en el .env")
     return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
-        
+
+
 
 def formato_ars(valor):
     try:
